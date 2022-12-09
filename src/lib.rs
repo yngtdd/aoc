@@ -6,4 +6,4 @@ extern crate crypto;
 
 pub mod day01;
 
-aoc_lib!{ year = 2022 }
+aoc_lib! { year = 2022 }
