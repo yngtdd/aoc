@@ -12,7 +12,7 @@ pub fn input_generator(input: &str) -> Vec<Elf> {
         .collect()
 }
 
-/// Find the elf that has gathered the most calories
+/// Get the largest number of calories collected by a single elf
 #[aoc(day1, part1)]
 pub fn max_calories(input: &[Elf]) -> u32 {
     let mut elves = input.to_vec();
