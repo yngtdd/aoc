@@ -1,11 +1,11 @@
-#[derive(Debug, Clone, Eq, Hash, PartialEq)]
+#[derive(Debug, Clone)]
 enum Move {
     Rock,
     Paper,
     Scisors,
 }
 
-#[derive(Debug, Hash, Eq, PartialEq)]
+#[derive(Debug)]
 enum RoundOutcome {
     Loss,
     Draw,
