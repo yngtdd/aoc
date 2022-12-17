@@ -5,6 +5,31 @@ enum Move {
     Scisors,
 }
 
+impl Move {
+    fn new(game_move: &str) -> Self {
+        match game_move {
+            "A" | "X" => Move::Rock,
+            "B" | "Y" => Move::Paper,
+            "C" | "Z" => Move::Scisors,
+            _ => Move::Scisors,
+        }
+    }
+}
+
+struct GameOne {
+    opponent_move: Move,
+    player_move: Move,
+}
+
+impl From<&Input> for GameOne {
+    fn from(input: &Input) -> Self {
+        let opponent_move = Move::new(&input.left);
+        let player_move = Move::new(&input.right);
+
+        GameOne {opponent_move, player_move }
+    }
+}
+
 #[derive(Debug)]
 enum RoundOutcome {
     Loss,
@@ -13,7 +38,7 @@ enum RoundOutcome {
 }
 
 impl RoundOutcome {
-    fn new(round: GameRound) -> Self {
+    fn new(round: GameOne) -> RoundOutcome {
         match (round.opponent_move, round.player_move) {
             (Move::Rock, Move::Paper) => RoundOutcome::Win,
             (Move::Rock, Move::Scisors) => RoundOutcome::Loss,
@@ -26,58 +51,40 @@ impl RoundOutcome {
     }
 }
 
-#[derive(Debug, Clone)]
-struct GameRound {
-    opponent_move: Move,
-    player_move: Move,
+struct Input {
+    left: String,
+    right: String,
 }
 
-impl GameRound {
-    fn new(opponent_move: Move, player_move: Move) -> Self {
-        Self {
-            opponent_move,
-            player_move,
-        }
+impl Input {
+    fn new(left: &str, right: &str) -> Self {
+        Self { left: left.into(), right: right.into() }
     }
 }
 
-fn parse_line(line: &str) -> (Move, Move) {
+fn parse_line(line: &str) -> Input {
     let mut line = line.split_whitespace();
-    let opponent_move = line.next().unwrap_or("");
-    let player_move = line.next().unwrap_or("");
-
-    let opponent_move = match opponent_move {
-        "A" => Move::Rock,
-        "B" => Move::Paper,
-        _ => Move::Scisors,
-    };
-
-    let player_move = match player_move {
-        "X" => Move::Rock,
-        "Y" => Move::Paper,
-        _ => Move::Scisors,
-    };
-
-    (opponent_move, player_move)
+    let left = line.next().unwrap_or("");
+    let right = line.next().unwrap_or("");
+    Input::new(left, right)
 }
 
 #[aoc_generator(day2)]
-fn input_generator(input: &str) -> Vec<GameRound> {
+fn input_generator(input: &str) -> Vec<Input> {
     input
         .lines()
         .map(parse_line)
-        .map(|(opponent_move, player_move)| GameRound::new(opponent_move, player_move))
         .collect()
 }
 
-fn score_round(round: &GameRound) -> u32 {
+fn score_round(round: GameOne) -> u32 {
     let player_move_score = match round.player_move {
         Move::Rock => 1,
         Move::Paper => 2,
         _ => 3,
     };
 
-    let outcome = RoundOutcome::new(round.to_owned());
+    let outcome = RoundOutcome::new(round);
 
     let round_outcome_score = match outcome {
         RoundOutcome::Loss => 0,
@@ -88,7 +95,11 @@ fn score_round(round: &GameRound) -> u32 {
     player_move_score + round_outcome_score
 }
 
-#[aoc(day2, part1)]
-fn rock_paper_scisors(input: &[GameRound]) -> u32 {
-    input.iter().map(score_round).sum()
+#[aoc(day2, part1)] 
+fn game_one(input: &[Input]) -> u32 {
+    input 
+        .iter()
+        .map(|input| GameOne::from(input))
+        .map(score_round)
+        .sum()
 }
