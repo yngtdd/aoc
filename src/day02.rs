@@ -104,14 +104,26 @@ fn score_round(round: GameOne) -> u32 {
     player_move_score + round_outcome_score
 }
 
-fn score_round_two(round: &Input) -> u32 {
-    let outcome = RoundOutcome::intended_outcome(round.clone());
-
-    let round_outcome_score = match outcome {
+fn match_outcome_score(outcome: &RoundOutcome) -> u32 {
+    match outcome {
         RoundOutcome::Loss => 0,
         RoundOutcome::Draw => 3,
         RoundOutcome::Win => 6,
-    };
+    }
+}
+
+fn score_player_move(player_move: Move) -> u32 {
+    match player_move {
+        Move::Rock => 1,
+        Move::Paper => 2,
+        _ => 3,
+    }
+}
+
+fn score_round_two(round: &Input) -> u32 {
+    let outcome = RoundOutcome::intended_outcome(round.clone());
+
+    let round_outcome_score = match_outcome_score(&outcome);
 
     let opponent_move = Move::new(round.left.as_str());
 
@@ -127,11 +139,7 @@ fn score_round_two(round: &Input) -> u32 {
         (Move::Scisors, RoundOutcome::Draw) => Move::Scisors,
     };
 
-    let player_move_score = match player_move {
-        Move::Rock => 1,
-        Move::Paper => 2,
-        _ => 3,
-    };
+    let player_move_score = score_player_move(player_move);
 
     round_outcome_score + player_move_score
 }
