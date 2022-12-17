@@ -49,8 +49,17 @@ impl RoundOutcome {
             _ => RoundOutcome::Draw,
         }
     }
+
+    fn intended_outcome(input: Input) -> RoundOutcome {
+        match input.right.as_str() {
+            "X" => RoundOutcome::Loss,
+            "Y" => RoundOutcome::Draw,
+            _ => RoundOutcome::Win,
+        }
+    }
 }
 
+#[derive(Clone)]
 struct Input {
     left: String,
     right: String,
@@ -95,11 +104,51 @@ fn score_round(round: GameOne) -> u32 {
     player_move_score + round_outcome_score
 }
 
+fn score_round_two(round: &Input) -> u32 {
+    let outcome = RoundOutcome::intended_outcome(round.clone());
+
+    let round_outcome_score = match outcome {
+        RoundOutcome::Loss => 0,
+        RoundOutcome::Draw => 3,
+        RoundOutcome::Win => 6,
+    };
+
+    let opponent_move = Move::new(round.left.as_str());
+
+    let player_move = match (opponent_move, outcome) {
+        (Move::Rock, RoundOutcome::Win) => Move::Paper,
+        (Move::Rock, RoundOutcome::Loss) => Move::Scisors,
+        (Move::Rock, RoundOutcome::Draw) => Move::Rock,
+        (Move::Paper, RoundOutcome::Win) => Move::Scisors,
+        (Move::Paper, RoundOutcome::Loss) => Move::Rock,
+        (Move::Paper, RoundOutcome::Draw) => Move::Paper,
+        (Move::Scisors, RoundOutcome::Win) => Move::Rock,
+        (Move::Scisors, RoundOutcome::Loss) => Move::Paper,
+        (Move::Scisors, RoundOutcome::Draw) => Move::Scisors,
+    };
+
+    let player_move_score = match player_move {
+        Move::Rock => 1,
+        Move::Paper => 2,
+        _ => 3,
+    };
+
+    round_outcome_score + player_move_score
+}
+
 #[aoc(day2, part1)] 
 fn game_one(input: &[Input]) -> u32 {
     input 
         .iter()
         .map(|input| GameOne::from(input))
         .map(score_round)
+        .sum()
+}
+
+#[aoc(day2, part2)] 
+fn game_two(input: &[Input]) -> u32 {
+    input 
+        .iter()
+        .map(score_round_two)
         .sum()
 }
